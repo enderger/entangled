@@ -133,12 +133,12 @@ fn apply_scale_factors(
         match scalable.direction {
             ScaleDirection::Up | ScaleDirection::Down => {
                 transform.scale.y = scale;
-                let translation = scalable.position.y + (direction_sign * (scale - 1.) * scalable.size.y / 2.);
+                let translation = direction_sign * (scale - 1.) * scalable.size.y / 2.;
                 transform.translation.y = scalable.position.y + translation;
             },
             ScaleDirection::Left | ScaleDirection::Right => {
                 transform.scale.x = scale;
-                let translation = scalable.position.x + (direction_sign * (scale - 1.) * scalable.size.x / 2.);
+                let translation = direction_sign * (scale - 1.) * scalable.size.x / 2.;
                 transform.translation.x = scalable.position.x + translation;
             }
         }
@@ -167,7 +167,7 @@ fn update_scale(selected: Res<SelectedGroup>, mut q: Query<(&mut Scale, &ScaleGr
         scale.0 += ev.0;
     }
 
-    scale.0 = scale.0.clamp(0., 4.);
+    scale.0 = scale.0.clamp(-0.9, 4.);
 }
 
 fn setup_groups(mut cmd: Commands) {
@@ -335,7 +335,7 @@ fn edit_scalable(mut ui: ResMut<YoleckUi>, mut edit: YoleckEdit<&mut YoleckScala
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.add(egui::Label::new("Scale: "));
-            ui.add(egui::DragValue::new(&mut scalable.factor).speed(0.01).fixed_decimals(2).clamp_range(0.01..=10.).prefix("Factor: "));
+            ui.add(egui::DragValue::new(&mut scalable.factor).speed(0.01).fixed_decimals(2).clamp_range(-10.0..=10.).prefix("Factor: "));
             ui.add(egui::DragValue::new(&mut scalable.min).speed(0.1).fixed_decimals(1).prefix("Min: "));
             ui.add(egui::DragValue::new(&mut scalable.max).speed(0.1).fixed_decimals(1).prefix("Max: "));
         });
