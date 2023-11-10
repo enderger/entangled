@@ -3,7 +3,6 @@ use bevy::prelude::*;
 
 // SUBMODULES
 pub mod platform;
-use platform::PlatformBundle;
 
 // SYSTEMS
 ///// Set up the basic test level (TODO: levels with editor)

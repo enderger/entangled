@@ -3,8 +3,6 @@ use bevy_xpbd_2d::{prelude::*, math::Scalar};
 use bevy_yoleck::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::WINDOW_BOTTOM_LEFT;
-
 // BUNDLE
 #[derive(Bundle)]
 pub struct PlatformBundle {
@@ -62,12 +60,16 @@ fn populate_platform(mut pop: YoleckPopulate<&YoleckPlatform>) {
 
 fn edit_platform(mut ui: ResMut<YoleckUi>, mut edit: YoleckEdit<&mut YoleckPlatform>) {
     if let Ok(mut platform) = edit.get_single_mut() {
-        ui.add(egui::Slider::new(&mut platform.width, 50.0..=500.0).prefix("Width: "));
-        ui.add(egui::Slider::new(&mut platform.height, 50.0..=500.0).prefix("Height: "));
+        ui.add(egui::Slider::new(&mut platform.width, 50.0..=2000.0).prefix("Width: "));
+        ui.add(egui::Slider::new(&mut platform.height, 50.0..=1000.0).prefix("Height: "));
 
         // TODO: Leave room for scale factor UI
-        ui.add(egui::Slider::new(&mut platform.x, WINDOW_BOTTOM_LEFT.x..=-WINDOW_BOTTOM_LEFT.x).prefix("X: "));
-        ui.add(egui::Slider::new(&mut platform.y, WINDOW_BOTTOM_LEFT.y..=-WINDOW_BOTTOM_LEFT.y).prefix("Y: "));
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+            ui.add(egui::DragValue::new(&mut platform.x).speed(1.).fixed_decimals(0).prefix("X: "));
+
+            // TODO: clamp range to height of scale factor UI - INFINITY
+            ui.add(egui::DragValue::new(&mut platform.y).speed(1.).fixed_decimals(0).prefix("Y: "));
+        });
     }
 }
 

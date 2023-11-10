@@ -6,8 +6,9 @@ use argh::FromArgs;
 use bevy_yoleck::{bevy_egui::EguiPlugin, YoleckPluginForEditor, YoleckPluginForGame, prelude::YoleckSyncWithEditorState};
 
 // SUBMODULES
-mod player;
+mod camera;
 mod level;
+mod player;
 
 // GAME STATES
 #[derive(States, Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
@@ -26,14 +27,8 @@ pub enum GameplaySet {
     Movement,
 }
 
-// WINDOWING / CAMERA
-// TODO : dynamic window size
-const WINDOW_SIZE: Vec2 = Vec2::new(1024., 720.);
-const WINDOW_BOTTOM_LEFT: Vec2 = Vec2::new(WINDOW_SIZE.x / -2., WINDOW_SIZE.y / -2.);
-
-fn setup_camera(mut cmd: Commands) {
-    cmd.spawn(Camera2dBundle::default());
-}
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+pub struct EditorSet;
 
 // CLI
 #[derive(FromArgs)]
@@ -59,7 +54,7 @@ fn main() {
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
                     title: String::from("Entangled"),
-                    resolution: WindowResolution::from(WINDOW_SIZE),
+                    resolution: WindowResolution::from(camera::WINDOW_SIZE),
                     resizable: false,
                     ..Default::default()
                 }),
@@ -82,11 +77,11 @@ fn main() {
     }
 
     app
-        .add_plugins((level::Plugin, player::Plugin, PhysicsPlugins::default(),))
+        .add_plugins((camera::Plugin, level::Plugin, player::Plugin, PhysicsPlugins::default(),))
         .add_state::<GameState>()
         .configure_sets(Update, (GameplaySet::Input, GameplaySet::Update, GameplaySet::Movement).chain().run_if(in_state(GameState::InGame)))
-        .insert_resource(Gravity(Vec2::NEG_Y * 150.))
-        .add_systems(Startup, (setup_camera,));
+        .configure_sets(Update, EditorSet.run_if(in_state(GameState::LevelEditor)))
+        .insert_resource(Gravity(Vec2::NEG_Y * 200.));
 
     if args.debug {
         // TODO: Debug plugin w/ Egui

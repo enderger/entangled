@@ -1,7 +1,7 @@
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::prelude::*;
 
-use crate::GameState;
+use crate::{GameState, GameplaySet};
 
 use self::movement::MovementBundle;
 
@@ -39,12 +39,22 @@ pub fn setup(
                 )
                 .into(),
             material: materials.add(ColorMaterial::from(Color::rgb(0.2, 0.7, 0.9))),
-            transform: Transform::from_xyz(crate::WINDOW_BOTTOM_LEFT.x + 150., -100.0, 0.0),
+            transform: Transform::from_xyz(crate::camera::WINDOW_BOTTOM_LEFT.x + 150., -100.0, 0.0),
             ..default()
         },
         movement: MovementBundle::new(Collider::capsule(20.0, 12.5)),
         marker: Player,
     },));
+}
+
+pub fn handle_respawn(mut q: Query<(&mut Transform, &mut LinearVelocity), With<Player>>) {
+    q.for_each_mut(|mut player| {
+        if player.0.translation.y < crate::camera::WINDOW_BOTTOM_LEFT.y {
+            player.0.translation.x = crate::camera::WINDOW_BOTTOM_LEFT.x + 150.;
+            player.0.translation.y = -100.0;
+            player.1.0 = Vec2::ZERO;
+        }
+    })
 }
 
 pub fn stop(
@@ -63,6 +73,7 @@ impl bevy::app::Plugin for Plugin {
         app
             .add_systems(OnEnter(GameState::InGame), (setup,))
             .add_systems(OnExit(GameState::InGame), (stop,))
+            .add_systems(Update, (handle_respawn.in_set(GameplaySet::Movement),))
             .add_plugins(movement::Plugin);
     }
 }
