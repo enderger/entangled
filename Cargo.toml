@@ -12,6 +12,7 @@ bevy_xpbd_2d = "0.3"
 bevy-yoleck = "0.16"
 egui = "0.23"
 serde = "1.0"
+strum = { version = "0.25", features = ["derive"] }
 
 [profile.dev.package."*"]
 opt-level = 3

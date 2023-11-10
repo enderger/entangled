@@ -79,7 +79,7 @@ fn keyboard_input(
     let right = keyboard_input.any_pressed([KeyCode::D, KeyCode::Right]);
     direction.x = (right as i8 - left as i8) as Scalar;
 
-    if keyboard_input.any_just_pressed([KeyCode::Space, KeyCode::W, KeyCode::Up]) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
         direction.y = 1.0;
     }
 

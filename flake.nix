@@ -15,7 +15,7 @@
       devShells.default = pkgs.mkShell {
         buildInputs = with pkgs; [
           (fenix.combine (with fenix; [
-            default.rustc default.cargo default.clippy
+            default.rustc default.cargo default.clippy complete.rust-src
             rust-analyzer
           ]))
           pkg-config
@@ -29,8 +29,9 @@
             udev
             alsaLib
             vulkan-loader
-          ])
-        }"'';
+          ])};
+        export RUST_SRC_PATH = "${fenix.complete.rust-src}/lib/rustlib/src/rust/library"
+        "'';
       };
     });
 }

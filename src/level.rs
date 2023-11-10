@@ -3,6 +3,7 @@ use bevy::prelude::*;
 
 // SUBMODULES
 pub mod platform;
+pub mod resizable;
 
 // SYSTEMS
 ///// Set up the basic test level (TODO: levels with editor)
@@ -18,7 +19,7 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut App) {
         app
-            .add_plugins((platform::Plugin,))
+            .add_plugins((platform::Plugin, resizable::Plugin))
             /*.add_systems(Startup, (setup,))*/;
     }
 }
