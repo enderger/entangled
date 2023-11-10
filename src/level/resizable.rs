@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{prelude::*, utils::HashMap, input::mouse::{MouseWheel, MouseScrollUnit}};
 use bevy_xpbd_2d::{prelude::*, math::Scalar};
 use bevy_yoleck::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -47,12 +47,12 @@ pub struct Scale(Scalar);
 
 // EVENTS
 #[derive(Event)]
-pub enum InputEvent {
-    SelectFactor {
-        direction: i8,
-    },
-    ChangeScale(Scalar),
+pub struct SelectFactorEvent {
+    direction: i8,
 }
+
+#[derive(Event)]
+pub struct ChangeScaleEvent(Scalar);
 
 // BUNDLES
 #[derive(Bundle)]
@@ -87,7 +87,7 @@ impl ScalableBundle {
 }
 
 // SYSTEMS
-fn handle_input(keyboard_input: Res<Input<KeyCode>>, mut evw: EventWriter<InputEvent>) {
+fn handle_keyboard_input(keyboard_input: Res<Input<KeyCode>>, mut select_factor_evw: EventWriter<SelectFactorEvent>) {
     let mut direction = 0i8;
 
     if keyboard_input.any_just_pressed([KeyCode::W, KeyCode::Up]) {
@@ -99,7 +99,20 @@ fn handle_input(keyboard_input: Res<Input<KeyCode>>, mut evw: EventWriter<InputE
     }
 
     if direction != 0 {
-        evw.send(InputEvent::SelectFactor { direction });
+        select_factor_evw.send(SelectFactorEvent { direction });
+    }
+}
+
+fn handle_mouse_scrolling(mut mouse_scroll: EventReader<MouseWheel>, mut change_scale_evw: EventWriter<ChangeScaleEvent>) {
+    for ev in mouse_scroll.read() {
+        match ev.unit {
+            MouseScrollUnit::Line => {
+                change_scale_evw.send(ChangeScaleEvent(ev.y / 10.))
+            },
+            MouseScrollUnit::Pixel => {
+                change_scale_evw.send(ChangeScaleEvent((ev.y / 3.).round() / 100.))
+            }
+        }
     }
 }
 
@@ -132,19 +145,29 @@ fn apply_scale_factors(
     }
 }
 
-fn update_from_user_input(mut selected: ResMut<SelectedGroup>, mut evr: EventReader<InputEvent>) {
+fn update_selection(
+    mut selected: ResMut<SelectedGroup>,
+    mut evr: EventReader<SelectFactorEvent>,
+) {
     let mut selections = ScaleGroup::iter().cycle();
 
     for ev in evr.read() {
-        match ev {
-            InputEvent::SelectFactor { direction } => selected.0 = match direction {
-                1 => selections.nth(usize::from(selected.0 as u8 + 1)).unwrap(),
-                -1 => selections.nth(usize::from(selected.0 as u8 + ScaleGroup::Blue as u8)).unwrap(),
-                _ => unreachable!()
-            },
-            _ => unimplemented!()
-        }
+        selected.0 = match ev.direction {
+            1 => selections.nth(usize::from(selected.0 as u8 + 1)).unwrap(),
+            -1 => selections.nth(usize::from(selected.0 as u8 + ScaleGroup::Blue as u8)).unwrap(),
+            _ => unreachable!()
+        };
     }
+}
+
+fn update_scale(selected: Res<SelectedGroup>, mut q: Query<(&mut Scale, &ScaleGroup)>, mut change_scale_evr: EventReader<ChangeScaleEvent>) {
+    let mut scale = q.iter_mut().find(|it| *it.1 == selected.0).unwrap().0;
+
+    for ev in change_scale_evr.read() {
+        scale.0 += ev.0;
+    }
+
+    scale.0 = scale.0.clamp(0., 4.);
 }
 
 fn setup_groups(mut cmd: Commands) {
@@ -158,8 +181,8 @@ fn reset_scales(mut q: Query<&mut Scale, With<ScaleGroup>>) {
     }
 }
 
-// TODO: UI
-// TODO: Controls (Select: WS/Arrows, Change: Scroll wheel (30px/step))
+// UI
+// TODO: Controls ( Change: Scroll wheel (30px/step))
 const UNSELECTED_BG: Color = Color::rgb(0.75, 0.75, 0.75);
 const SELECTED_BG: Color = Color::rgb(0.65, 0.65, 0.65);
 
@@ -217,7 +240,7 @@ fn update_ui_factors(mut q: Query<(&mut Text, &ScaleGroup)>, factors: Query<(&Sc
 
     for (mut text, group) in q.iter_mut() {
         let factor = scales.get(group).unwrap().0;
-        text.sections[0].value = format!("{factor:.2}");
+        text.sections[0].value = format!("{:.2}", factor + 1.);
     }
 }
 
@@ -325,11 +348,13 @@ pub struct Plugin;
 impl bevy::app::Plugin for Plugin {
     fn build(&self, app: &mut App) {
         app
-            .add_event::<InputEvent>()
+            .add_event::<SelectFactorEvent>()
+            .add_event::<ChangeScaleEvent>()
             .add_systems(Startup, (setup_groups,setup_ui))
             .add_systems(Update, (
-                handle_input.in_set(GameplaySet::Input),
-                (apply_scale_factors, update_from_user_input).in_set(GameplaySet::Update),
+                (handle_keyboard_input, handle_mouse_scrolling).in_set(GameplaySet::Input),
+                (update_selection, update_scale).chain().in_set(GameplaySet::Update),
+                apply_scale_factors.in_set(GameplaySet::Movement),
                 update_ui_factors, update_ui_selected,
             ))
             .add_systems(OnEnter(GameState::LevelEditor), (reset_scales,));
