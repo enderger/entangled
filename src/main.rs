@@ -15,6 +15,7 @@ mod player;
 pub enum GameState {
     // TODO: #[default] Menu,
     #[default]
+    Menu,
     InGame,
     LevelEditor,
 }
@@ -29,6 +30,13 @@ pub enum GameplaySet {
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
 pub struct EditorSet;
+
+// TODO : Menu
+fn exit_menu_auto(st: Res<State<GameState>>, mut next_st: ResMut<NextState<GameState>>) {
+    if *st == GameState::Menu {
+        next_st.set(GameState::InGame);
+    }
+}
 
 // CLI
 #[derive(FromArgs)]
@@ -79,6 +87,7 @@ fn main() {
     app
         .add_plugins((camera::Plugin, level::Plugin, player::Plugin, PhysicsPlugins::default(),))
         .add_state::<GameState>()
+        .add_systems(Startup, exit_menu_auto)
         .configure_sets(Update, (GameplaySet::Input, GameplaySet::Update, GameplaySet::Movement).chain().run_if(in_state(GameState::InGame)))
         .configure_sets(Update, EditorSet.run_if(in_state(GameState::LevelEditor)))
         .insert_resource(Gravity(Vec2::NEG_Y * 200.));

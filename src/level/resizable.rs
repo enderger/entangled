@@ -325,19 +325,18 @@ fn edit_scalable(mut ui: ResMut<YoleckUi>, mut edit: YoleckEdit<&mut YoleckScala
         ui.add(egui::Slider::new(&mut scalable.width, 50.0..=2000.0).prefix("Width: "));
         ui.add(egui::Slider::new(&mut scalable.height, 50.0..=1000.0).prefix("Height: "));
 
-        // TODO: Leave room for scale factor UI
-        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+        ui.horizontal(|ui| {
             ui.add(egui::DragValue::new(&mut scalable.x).speed(1.).fixed_decimals(0).prefix("X: "));
 
             // TODO: clamp range to height of scale factor UI - INFINITY
             ui.add(egui::DragValue::new(&mut scalable.y).speed(1.).fixed_decimals(0).prefix("Y: "));
         });
 
-        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+        ui.horizontal(|ui| {
             ui.add(egui::Label::new("Scale: "));
             ui.add(egui::DragValue::new(&mut scalable.factor).speed(0.01).fixed_decimals(2).clamp_range(-10.0..=10.).prefix("Factor: "));
-            ui.add(egui::DragValue::new(&mut scalable.min).speed(0.1).fixed_decimals(1).prefix("Min: "));
-            ui.add(egui::DragValue::new(&mut scalable.max).speed(0.1).fixed_decimals(1).prefix("Max: "));
+            ui.add(egui::DragValue::new(&mut scalable.min).speed(0.05).fixed_decimals(2).prefix("Min: "));
+            ui.add(egui::DragValue::new(&mut scalable.max).speed(0.05).fixed_decimals(2).prefix("Max: "));
         });
     }
 }

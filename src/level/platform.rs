@@ -20,7 +20,7 @@ impl PlatformBundle {
                     custom_size: Some(size),
                     ..Default::default()
                 },
-                transform: Transform::from_translation(pos.extend(0.)),
+                transform: Transform::from_translation(pos.extend(0.1)),
                 ..Default::default()
             },
             body: RigidBody::Static,

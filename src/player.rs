@@ -7,6 +7,7 @@ use self::movement::MovementBundle;
 
 // SUBMODULES
 pub mod movement;
+pub mod respawn;
 
 // BUNDLE
 #[derive(Component, Default)]
@@ -47,16 +48,6 @@ pub fn setup(
     },));
 }
 
-pub fn handle_respawn(mut q: Query<(&mut Transform, &mut LinearVelocity), With<Player>>) {
-    q.for_each_mut(|mut player| {
-        if player.0.translation.y < crate::camera::WINDOW_BOTTOM_LEFT.y {
-            player.0.translation.x = crate::camera::WINDOW_BOTTOM_LEFT.x + 150.;
-            player.0.translation.y = -100.0;
-            player.1.0 = Vec2::ZERO;
-        }
-    })
-}
-
 pub fn stop(
     mut cmd: Commands,
     mut q: Query<Entity, With<Player>>
@@ -73,8 +64,7 @@ impl bevy::app::Plugin for Plugin {
         app
             .add_systems(OnEnter(GameState::InGame), (setup,))
             .add_systems(OnExit(GameState::InGame), (stop,))
-            .add_systems(Update, (handle_respawn.in_set(GameplaySet::Movement),))
-            .add_plugins(movement::Plugin);
+            .add_plugins((movement::Plugin, respawn::Plugin));
     }
 }
 
