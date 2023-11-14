@@ -21,8 +21,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup xcode
-        run: xcode-select --install
       - uses: dtolnay/rust-toolchain@nightly
       - name: Build
         run: cargo build --release
