@@ -4,7 +4,7 @@ use crate::player::Player;
 
 pub const WINDOW_SIZE: Vec2 = Vec2::new(1024., 720.);
 pub const WINDOW_BOTTOM_LEFT: Vec2 = Vec2::new(WINDOW_SIZE.x / -2., WINDOW_SIZE.y / -2.);
-
+pub const WINDOW_TOP_RIGHT: Vec2 = Vec2::new(WINDOW_SIZE.x / 2., WINDOW_SIZE.y / 2.);
 
 
 // SYSTEMS

@@ -1680,6 +1680,7 @@ dependencies = [
  "bevy",
  "bevy-yoleck",
  "bevy_xpbd_2d",
+ "console_error_panic_hook",
  "egui",
  "serde",
  "strum",

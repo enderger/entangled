@@ -16,9 +16,10 @@
         buildInputs = with pkgs; [
           (fenix.combine (with fenix; [
             default.rustc default.cargo default.clippy complete.rust-src
+            targets.wasm32-unknown-unknown.latest.rust-std
             rust-analyzer
           ]))
-          pkg-config
+          pkg-config just
           udev alsaLib lutris
           xorg.libX11 xorg.libXcursor xorg.libXrandr xorg.libXi
           vulkan-tools vulkan-headers vulkan-loader vulkan-validation-layers mesa

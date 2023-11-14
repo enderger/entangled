@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 
-use bevy::{prelude::*, window::WindowResolution};
+use bevy::{prelude::*, window::WindowResolution, render::{render_resource::SamplerDescriptor, texture::ImageSamplerDescriptor}};
 use bevy_xpbd_2d::prelude::*;
 use argh::FromArgs;
 use bevy_yoleck::{bevy_egui::EguiPlugin, YoleckPluginForEditor, YoleckPluginForGame, prelude::YoleckSyncWithEditorState};
@@ -17,6 +17,7 @@ pub enum GameState {
     #[default]
     Menu,
     InGame,
+    Loading,
     LevelEditor,
 }
 
@@ -34,13 +35,13 @@ pub struct EditorSet;
 // TODO : Menu
 fn exit_menu_auto(st: Res<State<GameState>>, mut next_st: ResMut<NextState<GameState>>) {
     if *st == GameState::Menu {
-        next_st.set(GameState::InGame);
+        next_st.set(GameState::Loading);
     }
 }
 
-// CLI
-#[derive(FromArgs)]
+// CLI 
 /// A game about resizing platforms to solve puzzles
+#[derive(FromArgs)]
 struct Entangled {
     #[argh(switch, short='d')]
     /// enable debugging
@@ -53,6 +54,9 @@ struct Entangled {
 
 // MAIN
 fn main() {
+    #[cfg(target_arch = "wasm32")]
+    console_error_panic_hook::set_once();
+
     let args: Entangled = argh::from_env();
 
     let mut app = App::new();

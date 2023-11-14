@@ -13,11 +13,11 @@ pub struct PlatformBundle {
 
 impl PlatformBundle {
     pub fn new(pos: Vec2, size: Vec2) -> Self {
-        Self { 
+        Self {
             sprite: SpriteBundle {
                 sprite: Sprite {
-                    color: Color::GREEN,
                     custom_size: Some(size),
+                    color: Color::ANTIQUE_WHITE,
                     ..Default::default()
                 },
                 transform: Transform::from_translation(pos.extend(0.1)),
@@ -54,9 +54,10 @@ fn populate_platform(mut pop: YoleckPopulate<&YoleckPlatform>) {
         cmd.insert(PlatformBundle::new(
             Vec2::new(platform.x, platform.y),
             Vec2::new(platform.width, platform.height),
-        )); 
+        ));
     })
 }
+
 
 fn edit_platform(mut ui: ResMut<YoleckUi>, mut edit: YoleckEdit<&mut YoleckPlatform>) {
     if let Ok(mut platform) = edit.get_single_mut() {

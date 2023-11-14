@@ -1,7 +1,7 @@
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::prelude::*;
 
-use crate::{GameState, GameplaySet};
+use crate::{GameState, GameplaySet, camera::WINDOW_BOTTOM_LEFT};
 
 use self::movement::MovementBundle;
 
@@ -15,7 +15,7 @@ pub struct Player;
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
-    mesh: MaterialMesh2dBundle<ColorMaterial>,
+    sprite: SpriteBundle,
     movement: MovementBundle,
     marker: Player,
 }
@@ -24,24 +24,17 @@ pub struct PlayerBundle {
 /// The system which adds the player to the game
 pub fn setup(
     mut cmd: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    assets: Res<AssetServer>,
 ) {
     cmd.spawn((PlayerBundle {
-        mesh: MaterialMesh2dBundle {
-            mesh: meshes
-                .add(
-                    shape::Capsule {
-                        radius: 12.5,
-                        depth: 20.0,
-                        ..default()
-                    }
-                    .into(),
-                )
-                .into(),
-            material: materials.add(ColorMaterial::from(Color::rgb(0.2, 0.7, 0.9))),
-            transform: Transform::from_xyz(crate::camera::WINDOW_BOTTOM_LEFT.x + 150., -100.0, 0.0),
-            ..default()
+        sprite: SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(25., 45.)),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(WINDOW_BOTTOM_LEFT.x + 100., -100., 10.),
+            texture: assets.load("sprites/player.png"),
+            ..Default::default()
         },
         movement: MovementBundle::new(Collider::capsule(20.0, 12.5)),
         marker: Player,

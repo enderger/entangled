@@ -356,7 +356,7 @@ impl bevy::app::Plugin for Plugin {
                 apply_scale_factors.in_set(GameplaySet::Movement),
                 update_ui_factors, update_ui_selected,
             ))
-            .add_systems(OnEnter(GameState::LevelEditor), (reset_scales,));
+            .add_systems(OnExit(GameState::InGame), reset_scales);
 
         app.add_yoleck_entity_type(YoleckEntityType::new("Scalable").with::<YoleckScalable>());
         app.add_yoleck_edit_system(edit_scalable);
