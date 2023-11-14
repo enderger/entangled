@@ -12,11 +12,11 @@ jobs:
       - name: Build
         run: cargo build --release
       - name: Dist
-        run: just dist
+        run: just dist_dir
       - uses: actions/upload-artifact@v3
         with:
-          name: Linux (tarball)
-          path: dist.tar.zstd
+          name: Linux
+          path: dist/
   build-macos:
     runs-on: macos-latest
     steps:
@@ -25,8 +25,9 @@ jobs:
       - name: Build
         run: cargo build --release
       - name: Dist
-        run: just dist
+        run: just dist_dir
       - uses: actions/upload-artifact@v3
         with:
-          name: MacOS (tarball)
-          path: dist.tar.zstd
+          name: MacOS
+          path: dist/
+# TODO: build-windows

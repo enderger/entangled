@@ -13,8 +13,10 @@ clean:
 build:
   cargo build --release
 
-dist: clean build
+dist_dir: clean build
   mkdir dist
   cp target/release/entangled dist/
   cp -r assets/ dist/
+
+dist: dist_dir
   tar cvf dist.tar.zstd dist/
