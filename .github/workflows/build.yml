@@ -1,4 +1,4 @@
-name: build-linux
+name: build
 on: push
 jobs:
   build-linux:
@@ -22,6 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
+      - uses: extractions/setup-just@v1
       - name: Build
         run: cargo build --release
       - name: Dist
@@ -35,6 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
+      - uses: extractions/setup-just@v1
       - name: Build
         run: cargo build --release
       - name: Dist
