@@ -30,4 +30,17 @@ jobs:
         with:
           name: MacOS
           path: dist/
-# TODO: build-windows
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Build
+        run: cargo build --release
+      - name: Dist
+        run: just dist_dir
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows
+          path: dist/
+
