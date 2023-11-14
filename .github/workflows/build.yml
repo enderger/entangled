@@ -1,0 +1,34 @@
+name: build-linux
+on: push
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt update && sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev git -y
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: extractions/setup-just@v1
+      - name: Build
+        run: cargo build --release
+      - name: Dist
+        run: just dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux (tarball)
+          path: dist.tar.zstd
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup xcode
+        run: xcode-select --install
+      - uses: dtolnay/rust-toolchain@nightly
+      - name: Build
+        run: cargo build --release
+      - name: Dist
+        run: just dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: MacOS (tarball)
+          path: dist.tar.zstd
