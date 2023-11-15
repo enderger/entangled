@@ -28,7 +28,7 @@ pub struct Movement {
 impl Default for Movement {
     fn default() -> Self {
         Self {
-            acceleration: 400.,
+            acceleration: 600.,
             damping_factor: 0.9,
             jump_impulse: 150.,
             max_slope_angle: Some(PI * 0.45),

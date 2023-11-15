@@ -8,7 +8,7 @@ run_debug *ARGS:
   cargo run --features bevy/dynamic_linking -- {{ARGS}}
 
 clean:
-  rm -r dist
+  rm -rf dist dist.tar.zstd
 
 build:
   cargo build --release
